@@ -9,17 +9,29 @@ const cors = require('cors');
 const Datastore = require('nedb');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+// CHANGED: Set default to 10000 which Render prefers natively
+const PORT = process.env.PORT || 10000; 
 
-// Middleware
-app.use(cors());
+// =========================================================================
+// MIDDLEWARE CONFIGURATION
+// =========================================================================
+// CHANGED: Explicitly configure CORS to trust your GitHub Pages frontend
+app.use(cors({
+    origin: 'https://ayush9005.github.io',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+}));
+
 app.use(express.json()); // Parses incoming JSON text payloads safely
 
 // 1. IN-MEMORY DATA STORES (Safe from OS file lock problems)
 const db = new Datastore();          // Datastore for PG properties
 const authDb = new Datastore();      // Dedicated Datastore for Registered Users
 
-// 2. API ENDPOINTS
+// Default Root Route (Added so you don't see "Cannot GET /" if you visit the link directly)
+app.get('/', (req, res) => {
+    res.send('StudentHome Backend Server is running successfully!');
+});
 
 // =========================================================================
 // AUTHENTICATION ENDPOINTS (REGISTER, LOGIN, & USER RETRIEVAL)
@@ -155,5 +167,5 @@ app.post('/api/properties', (req, res) => {
 
 // Start Server
 app.listen(PORT, () => {
-    console.log(`StudentHome backend running on http://localhost:${PORT}`);
+    console.log(`StudentHome backend running on port ${PORT}`);
 });
